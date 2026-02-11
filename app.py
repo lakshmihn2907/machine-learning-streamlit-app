@@ -5,6 +5,7 @@ BITS PILANI - ML ASSIGNMENT 2
 STREAMLIT APP - BANK MARKETING PREDICTION
 
 """
+import zipfile
 
 import streamlit as st
 
@@ -25,6 +26,12 @@ from sklearn.metrics import (accuracy_score, roc_auc_score, precision_score,
                            confusion_matrix, classification_report)
 
 import os
+
+# Extract model files if not already extracted
+if not os.path.exists('model/Logistic_Regression.pkl'):
+   with zipfile.ZipFile('model.zip', 'r') as zip_ref:  
+       zip_ref.extractall('.')
+
 
 # ============ PAGE CONFIG ============
 
