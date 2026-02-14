@@ -227,7 +227,7 @@ if uploaded_file is not None:
 
                       expected_features = model.feature_names_in_
 
-                 else:
+                else:
 
                      expected_features = model.feature_names_in_
 
