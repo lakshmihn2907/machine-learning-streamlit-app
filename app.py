@@ -67,7 +67,7 @@ with st.sidebar:
     st.markdown("---")
 
     # -------- FEATURE 2: MODEL SELECTION --------
-    st.subheader("Step 2: Select Model")
+    st.subheader("Select Model")
     model_options = [
         "Logistic Regression",
         "Decision Tree",
