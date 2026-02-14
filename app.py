@@ -181,7 +181,7 @@ if uploaded_file is not None:
 
     # Show test data preview
 
-    with st.expander("📋 View Uploaded Test Data", expanded=True):
+    with st.expander("View Uploaded Test Data", expanded=True):
 
         st.dataframe(test_df.head(10), use_container_width=True)
 
@@ -213,20 +213,42 @@ if uploaded_file is not None:
 
                 # Preprocess based on model type
 
+                # For tree-based models (including XGBoost), we need same columns as training
+              
                 if selected_model in ['Logistic Regression', 'K-Nearest Neighbors'] and scaler is not None:
-
-                    X_test_scaled = scaler.transform(X_test)
-
-                    predictions = model.predict(X_test_scaled)
-
-                    probabilities = model.predict_proba(X_test_scaled)
-
+                  
+                X_test_scaled = scaler.transform(X_test)
+              
+                predictions = model.predict(X_test_scaled)
+              
+                probabilities = model.predict_proba(X_test_scaled)
+              
                 else:
-
-                    predictions = model.predict(X_test)
-
-                    probabilities = model.predict_proba(X_test)
-
+                  
+                # For XGBoost, Random Forest, Decision Tree, Naive Bayes
+                  
+                # Get training feature names from model
+          
+                if hasattr(model, 'feature_names_in_'):
+                  
+                expected_features = model.feature_names_in_
+          
+                # Add missing columns with 0
+          
+                for col in expected_features:
+                  
+                if col not in X_test.columns:
+                  
+                X_test[col] = 0
+          
+                # Keep only expected columns in same order
+          
+                X_test = X_test[expected_features]
+          
+                predictions = model.predict(X_test)
+          
+                probabilities = model.predict_proba(X_test)
+          
                 # ============ DISPLAY PREDICTIONS ============
 
                 st.markdown("---")
