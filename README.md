@@ -85,17 +85,13 @@ Predict whether a client will subscribe to a term deposit based on marketing cam
 
 ##  Features Implemented
 
-- ✓ 6 Classification Models
-
-- ✓ 6 Evaluation Metrics (Accuracy, AUC, Precision, Recall, F1, MCC)
-
-- ✓ Streamlit App with Test Data Upload
-
-- ✓ Model Selection Dropdown
-
-- ✓ Confusion Matrix Visualization
-
-- ✓ BITS Virtual Lab Execution
+- 6 Classification Models (Logistic Regression, Decision Tree, kNN, Naive Bayes, Random Forest, XGBoost)
+- 6 Evaluation Metrics (Accuracy, AUC, Precision, Recall, F1-Score, MCC)
+- Confusion Matrix Visualization
+- Classification Report Display
+- Test Data Upload Option (.csv)
+- Sample Test Data Download
+- Streamlit Deployment using Streamlit Community Cloud
 
 ---
 
@@ -103,29 +99,15 @@ Predict whether a client will subscribe to a term deposit based on marketing cam
 
 ```
 
-bits-ml-assignment-2/
-
-├── app.py
-
-├── requirements.txt
-
-├── README.md
-
-└── model/
-
-├── Logistic_Regression.pkl
-
-├── Decision_Tree.pkl
-
-├── kNN.pkl
-
-├── Naive_Bayes.pkl
-
-├── Random_Forest.pkl
-
-├── XGBoost.pkl
-
-└── scaler.pkl
+machine-learning-streamlit-app/
+├── app.py  
+├── requirements.txt  
+├── README.md  
+├── bank-full.csv  
+├── ml_model_training_notebook.ipynb  
+├── model.zip  
+├── .gitignore  
+└── LICENSE
 
 ```
  
