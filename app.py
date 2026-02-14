@@ -229,25 +229,25 @@ if uploaded_file is not None:
                   
                    # Get training feature names from model
           
-                if hasattr(model, 'feature_names_in_'):
+                   if hasattr(model, 'feature_names_in_'):
                   
-                   expected_features = model.feature_names_in_
+                      expected_features = model.feature_names_in_
           
-                # Add missing columns with 0
+                      # Add missing columns with 0
           
-                for col in expected_features:
+                      for col in expected_features:
                   
-                  if col not in X_test.columns:
+                        if col not in X_test.columns:
                   
-                    X_test[col] = 0
+                           X_test[col] = 0
           
-                    # Keep only expected columns in same order
+                           # Keep only expected columns in same order
           
-                    X_test = X_test[expected_features]
+                           X_test = X_test[expected_features]
           
-                    predictions = model.predict(X_test)
+                           predictions = model.predict(X_test)
           
-                    probabilities = model.predict_proba(X_test)
+                           probabilities = model.predict_proba(X_test)
           
                 # ============ DISPLAY PREDICTIONS ============
 
