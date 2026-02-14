@@ -6,7 +6,7 @@ BITS Pilani Machine Learning Assignment 2 - Classification Models with Streamlit
 
 **Course:** Machine Learning  
 
-**Dataset:** UCI Bank Marketing (bank-additional-full.csv)  
+**Dataset:** UCI Bank Marketing (bank-full.csv)  
 
 **Submission:** 15 February 2026
 
