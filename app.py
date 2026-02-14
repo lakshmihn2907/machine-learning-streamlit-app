@@ -301,42 +301,26 @@ else:
 
     # Sample test data download
     st.markdown("---")
-    st.subheader("📎 Download Sample Test Data")
+    st.subheader("Download Sample Test Data")
 
-    sample_data = pd.DataFrame(
-        {
-            "age": [35, 42, 28, 51, 39],
-            "job": ["admin.", "technician", "blue-collar", "management", "services"],
-            "marital": ["married", "single", "married", "divorced", "married"],
-            "education": [
-                "university.degree",
-                "high.school",
-                "basic.9y",
-                "university.degree",
-                "high.school",
-            ],
-            "default": ["no", "no", "no", "no", "no"],
-            "balance": [1200, 4500, 800, 3200, 2100],
-            "housing": ["yes", "no", "yes", "yes", "no"],
-            "loan": ["no", "no", "yes", "no", "no"],
-            "contact": ["cellular", "cellular", "telephone", "cellular", "cellular"],
-            "day": [15, 22, 8, 12, 19],
-            "month": ["may", "jun", "jul", "may", "jun"],
-            "duration": [180, 95, 320, 210, 145],
-            "campaign": [1, 2, 1, 3, 1],
-            "pdays": [-1, -1, 6, -1, 3],
-            "previous": [0, 0, 1, 0, 2],
-            "poutcome": ["unknown", "unknown", "success", "unknown", "failure"],
-            "y": [0, 0, 1, 0, 1],
-        }
-    )
-    csv = sample_data.to_csv(index=False)
-    st.download_button(
-        label="Download sample_test_data.csv",
-        data=csv,
-        file_name="sample_test_data.csv",
-        mime="text/csv",
-    )
+try:
+   # Load same dataset used for training
+   df_full = pd.read_csv("bank-full.csv", sep=";")
+   # Take random sample (you can change 500 to 1000 if needed)
+   sample_data = df_full.sample(n=500, random_state=42)
+   # Convert target column to 0/1 if needed
+   if sample_data["y"].dtype == "object":
+       sample_data["y"] = sample_data["y"].map({"yes": 1, "no": 0})
+   # Convert to CSV
+   csv = sample_data.to_csv(index=False)
+   st.download_button(
+       label="Download sample_test_data.csv",
+       data=csv,
+       file_name="sample_test_data.csv",
+       mime="text/csv"
+   )
+except Exception as e:
+   st.error(f"Error loading training dataset: {e}")
 
 # =========================================
 # FOOTER
