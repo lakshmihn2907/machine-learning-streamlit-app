@@ -100,14 +100,14 @@ Predict whether a client will subscribe to a term deposit based on marketing cam
 ```
 
 machine-learning-streamlit-app/
-├── app.py  
-├── requirements.txt  
+├── .gitignore  
+├── LICENSE 
 ├── README.md  
-├── bank-full.csv  
+├── app.py 
+├── bank-full.csv 
 ├── ml_model_training_notebook.ipynb  
 ├── model.zip  
-├── .gitignore  
-└── LICENSE
+└── requirements.txt 
 
 ```
  
