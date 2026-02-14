@@ -25,7 +25,7 @@ Predict whether a client will subscribe to a term deposit based on marketing cam
 | Source            | UCI Machine Learning Repository |
 | Dataset Name      | UCI Bank Marketing (bank-full.csv) |
 | Instances         | 45,211 |
-| Features          | 20 (after preprocessing) |
+| Features          | 20 (after preprocessing) + 1 target column (Total: 21) |
 | Target Variable   | Binary (Yes/No – Term Deposit Subscription) |
 | Class Imbalance   | 11.7% Positive / 88.3% Negative |
 
