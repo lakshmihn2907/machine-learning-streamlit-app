@@ -219,7 +219,7 @@ if uploaded_file is not None:
                   
                    # Align test features with training features
                    if hasattr(model, 'feature_names_in_'):
-                       expected_features = model.feature_names_in_
+                       expected_features = scaler.feature_names_in_
                        # Add missing columns
                        for col in expected_features:
                          if col not in X_test.columns:
