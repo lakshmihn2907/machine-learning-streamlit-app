@@ -217,10 +217,18 @@ if uploaded_file is not None:
               
                 if selected_model in ['Logistic Regression', 'K-Nearest Neighbors'] and scaler is not None:
                   
+                   # Align test features with training features
+                   if hasattr(model, 'feature_names_in_'):
+                       expected_features = model.feature_names_in_
+                       # Add missing columns
+                       for col in expected_features:
+                         if col not in X_test.columns:
+                            X_test[col] = 0
+                       # Keep only expected columns in correct order
+                       X_test = X_test[expected_features]
+                   # Now scale
                    X_test_scaled = scaler.transform(X_test)
-              
                    predictions = model.predict(X_test_scaled)
-              
                    probabilities = model.predict_proba(X_test_scaled)
               
                 else:
