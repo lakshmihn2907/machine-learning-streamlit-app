@@ -105,8 +105,8 @@ machine-learning-streamlit-app/
 ├── README.md  
 ├── app.py 
 ├── bank-full.csv 
-├── ml_model_training_notebook.ipynb  
-├── model.zip  
+├── model.ipynb  
+├── models.zip  
 └── requirements.txt 
 
 ```
