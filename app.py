@@ -217,37 +217,37 @@ if uploaded_file is not None:
               
                 if selected_model in ['Logistic Regression', 'K-Nearest Neighbors'] and scaler is not None:
                   
-                X_test_scaled = scaler.transform(X_test)
+                   X_test_scaled = scaler.transform(X_test)
               
-                predictions = model.predict(X_test_scaled)
+                   predictions = model.predict(X_test_scaled)
               
-                probabilities = model.predict_proba(X_test_scaled)
+                   probabilities = model.predict_proba(X_test_scaled)
               
                 else:
                   
-                # For XGBoost, Random Forest, Decision Tree, Naive Bayes
+                   # For XGBoost, Random Forest, Decision Tree, Naive Bayes
                   
-                # Get training feature names from model
+                   # Get training feature names from model
           
                 if hasattr(model, 'feature_names_in_'):
                   
-                expected_features = model.feature_names_in_
+                   expected_features = model.feature_names_in_
           
                 # Add missing columns with 0
           
                 for col in expected_features:
                   
-                if col not in X_test.columns:
+                  if col not in X_test.columns:
                   
-                X_test[col] = 0
+                    X_test[col] = 0
           
-                # Keep only expected columns in same order
+                    # Keep only expected columns in same order
           
-                X_test = X_test[expected_features]
+                    X_test = X_test[expected_features]
           
-                predictions = model.predict(X_test)
+                    predictions = model.predict(X_test)
           
-                probabilities = model.predict_proba(X_test)
+                    probabilities = model.predict_proba(X_test)
           
                 # ============ DISPLAY PREDICTIONS ============
 
