@@ -5,6 +5,7 @@ BITS PILANI - ML ASSIGNMENT 2
 STREAMLIT APP - BANK MARKETING PREDICTION
 
 """
+
 import zipfile
 
 import streamlit as st
@@ -17,31 +18,31 @@ import joblib
 
 import plotly.express as px
 
-import plotly.graph_objects as go
+from sklearn.metrics import (
 
-from sklearn.metrics import (accuracy_score, roc_auc_score, precision_score,
+    accuracy_score, roc_auc_score, precision_score,
 
-                           recall_score, f1_score, matthews_corrcoef,
+    recall_score, f1_score, matthews_corrcoef,
 
-                           confusion_matrix, classification_report)
+    confusion_matrix, classification_report
+
+)
 
 import os
 
-# Extract model files if not already extracted
+
+# ============ EXTRACT MODEL ZIP IF NEEDED ============
+
 if not os.path.exists('model/Logistic_Regression.pkl'):
-   with zipfile.ZipFile('model.zip', 'r') as zip_ref:  
-       zip_ref.extractall('.')
+
+    with zipfile.ZipFile('model.zip', 'r') as zip_ref:
+
+        zip_ref.extractall('.')
 
 
 # ============ PAGE CONFIG ============
 
-st.set_page_config(
-
-    page_title="BITS ML Assignment 2",
-
-    layout="wide"
-
-)
+st.set_page_config(page_title="BITS ML Assignment 2", layout="wide")
 
 # ============ HEADER ============
 
@@ -63,7 +64,7 @@ with st.sidebar:
 
     st.markdown("**Course:** Machine Learning")
 
-    st.markdown("**Dataset:** UCI Bank Marketing (bank-full.csv)")
+    st.markdown("**Dataset:** UCI Bank Marketing")
 
     st.markdown("**Models:** 6 Classification Models")
 
@@ -71,21 +72,9 @@ with st.sidebar:
 
     st.markdown("---")
 
-    # ============ FEATURE 1: UPLOAD TEST DATA ============
+    uploaded_file = st.file_uploader("Choose test data CSV", type="csv")
 
-    uploaded_file = st.file_uploader(
-
-        "Choose test data CSV",
-
-        type="csv",
-
-    )
-
-    st.markdown("---")
-
-    # ============ FEATURE 2: MODEL SELECTION ============
-
-    st.subheader("Step 2: Select Model")
+    st.subheader("Select Model")
 
     model_options = [
 
@@ -103,27 +92,14 @@ with st.sidebar:
 
     ]
 
-    selected_model = st.selectbox(
+    selected_model = st.selectbox("Choose model for prediction", model_options)
 
-        "Choose model for prediction",
-
-        model_options
-
-    )
-
-    st.markdown("---")
-
-    st.markdown("**6 models pre-trained on 45,211 samples**")
-
-    st.markdown("**SMOTE applied for class imbalance**")
 
 # ============ LOAD MODELS ============
 
 @st.cache_resource
 
 def load_model(model_name):
-
-    """Load pre-trained model and scaler"""
 
     model_files = {
 
@@ -141,51 +117,30 @@ def load_model(model_name):
 
     }
 
-    try:
+    model = joblib.load(model_files[model_name])
 
-        model = joblib.load(model_files[model_name])
+    scaler = joblib.load('model/scaler.pkl')
 
-        scaler = joblib.load('model/scaler.pkl')
+    return model, scaler
 
-        return model, scaler
-
-    except Exception as e:
-
-        st.error(f"Error loading model: {str(e)}")
-
-        return None, None
 
 # ============ MAIN APP ============
 
 if uploaded_file is not None:
 
-    # Load test data
-
     test_df = pd.read_csv(uploaded_file)
-
-    # Display test data info
 
     col1, col2, col3 = st.columns(3)
 
-    with col1:
+    col1.metric("Test Samples", test_df.shape[0])
 
-        st.metric("Test Samples", test_df.shape[0])
+    col2.metric("Features", test_df.shape[1])
 
-    with col2:
-
-        st.metric("Features", test_df.shape[1])
-
-    with col3:
-
-        st.metric("Selected Model", selected_model)
-
-    # Show test data preview
+    col3.metric("Selected Model", selected_model)
 
     with st.expander("View Uploaded Test Data", expanded=True):
 
-        st.dataframe(test_df.head(10), use_container_width=True)
-
-    # Check if target column exists
+        st.dataframe(test_df.head(), use_container_width=True)
 
     has_target = 'y' in test_df.columns
 
@@ -200,358 +155,172 @@ if uploaded_file is not None:
         X_test = test_df.copy()
 
         y_true = None
-      
+
     X_test = pd.get_dummies(X_test)
 
-    # ============ MAKE PREDICTIONS ============
+    # ============ PREDICTIONS ============
 
     if st.button("Make Predictions", use_container_width=True):
 
-        with st.spinner(f"Making predictions using {selected_model}..."):
+        model, scaler = load_model(selected_model)
 
-            model, scaler = load_model(selected_model)
+        # -------- FEATURE ALIGNMENT --------
 
-            if model is not None:
+        if selected_model in ['Logistic Regression', 'K-Nearest Neighbors']:
 
-                # Preprocess based on model type# ================= FEATURE ALIGNMENT =================
+            if hasattr(scaler, 'feature_names_in_'):
 
-                # Decide expected features
-
-                if selected_model in ['Logistic Regression', 'K-Nearest Neighbors'] and scaler is not None:
-                  
-                   if hasattr(scaler, 'feature_names_in_'):
-
-                      expected_features = scaler.feature_names_in_
-
-                   else:
-
-                      expected_features = model.feature_names_in_
-
-                else:
-
-                     expected_features = model.feature_names_in_
-
-                 # Add missing columns
-
-                 for col in expected_features:
-
-                   if col not in X_test.columns:
-
-                      X_test[col] = 0
-
-                 # Remove extra columns and fix order
-
-                 X_test = X_test.reindex(columns=expected_features, fill_value=0)
-
-# ================= PREDICTION =================
-
-            if selected_model in ['Logistic Regression', 'K-Nearest Neighbors'] and scaler is not None:
-
-                  X_test_scaled = scaler.transform(X_test)
-
-                  predictions = model.predict(X_test_scaled)
-
-                  probabilities = model.predict_proba(X_test_scaled)
+                expected_features = scaler.feature_names_in_
 
             else:
 
-                  predictions = model.predict(X_test)
+                expected_features = model.feature_names_in_
 
-                  probabilities = model.predict_proba(X_test)
- 
+        else:
 
-                              
-              
-      else:
-                  
-                   # For XGBoost, Random Forest, Decision Tree, Naive Bayes
-                  
-                   # Get training feature names from model
-          
-                   if hasattr(model, 'feature_names_in_'):
-                  
-                      expected_features = model.feature_names_in_
-          
-                      # Add missing columns with 0
-          
-                      for col in expected_features:
-                  
-                        if col not in X_test.columns:
-                  
-                           X_test[col] = 0
-          
-                           # Keep only expected columns in same order
-          
-                           X_test = X_test[expected_features]
-          
-                           predictions = model.predict(X_test)
-          
-                           probabilities = model.predict_proba(X_test)
-          
-                # ============ DISPLAY PREDICTIONS ============
+            expected_features = model.feature_names_in_
 
-                st.markdown("---")
+        # Add missing columns
 
-                st.subheader("Prediction Results")
+        for col in expected_features:
 
-                results_df = X_test.copy()
+            if col not in X_test.columns:
 
-                results_df['Prediction'] = predictions
+                X_test[col] = 0
 
-                results_df['Prediction_Label'] = results_df['Prediction'].map({0: 'No', 1: 'Yes'})
+        # Remove extra columns & fix order
 
-                results_df['Probability_No'] = probabilities[:, 0].round(4)
+        X_test = X_test.reindex(columns=expected_features, fill_value=0)
 
-                results_df['Probability_Yes'] = probabilities[:, 1].round(4)
+        # -------- PREDICTION --------
 
-                st.dataframe(results_df, use_container_width=True)
+        if selected_model in ['Logistic Regression', 'K-Nearest Neighbors']:
 
-                # Download button
+            X_scaled = scaler.transform(X_test)
 
-                csv = results_df.to_csv(index=False)
+            predictions = model.predict(X_scaled)
 
-                st.download_button(
+            probabilities = model.predict_proba(X_scaled)
 
-                    label="Download Predictions CSV",
+        else:
 
-                    data=csv,
+            predictions = model.predict(X_test)
 
-                    file_name=f"{selected_model}_predictions.csv",
+            probabilities = model.predict_proba(X_test)
 
-                    mime="text/csv"
+        # -------- RESULTS DISPLAY --------
 
-                )
+        st.markdown("---")
 
-                # ============ FEATURE 3: EVALUATION METRICS ============
+        st.subheader("Prediction Results")
 
-                if y_true is not None:
+        results_df = X_test.copy()
 
-                    st.markdown("---")
+        results_df['Prediction'] = predictions
 
-                    st.subheader("Evaluation Metrics")
+        results_df['Prediction_Label'] = results_df['Prediction'].map({0: 'No', 1: 'Yes'})
 
-                    # Calculate ALL 6 metrics
+        results_df['Probability_No'] = probabilities[:, 0].round(4)
 
-                    acc = accuracy_score(y_true, predictions)
+        results_df['Probability_Yes'] = probabilities[:, 1].round(4)
 
-                    auc = roc_auc_score(y_true, probabilities[:, 1])
+        st.dataframe(results_df, use_container_width=True)
 
-                    precision = precision_score(y_true, predictions, zero_division=0)
+        csv = results_df.to_csv(index=False)
 
-                    recall = recall_score(y_true, predictions, zero_division=0)
+        st.download_button(
 
-                    f1 = f1_score(y_true, predictions, zero_division=0)
+            label="Download Predictions CSV",
 
-                    mcc = matthews_corrcoef(y_true, predictions)
+            data=csv,
 
-                    col1, col2, col3 = st.columns(3)
+            file_name=f"{selected_model}_predictions.csv",
 
-                    with col1:
+            mime="text/csv"
 
-                        st.metric("Accuracy", f"{acc:.4f}")
+        )
 
-                        st.metric("AUC", f"{auc:.4f}")
+        # -------- METRICS --------
 
-                    with col2:
+        if y_true is not None:
 
-                        st.metric("Precision", f"{precision:.4f}")
+            st.markdown("---")
 
-                        st.metric("Recall", f"{recall:.4f}")
+            st.subheader("Evaluation Metrics")
 
-                    with col3:
+            acc = accuracy_score(y_true, predictions)
 
-                        st.metric("F1 Score", f"{f1:.4f}")
+            auc = roc_auc_score(y_true, probabilities[:, 1])
 
-                        st.metric("MCC Score", f"{mcc:.4f}")
+            precision = precision_score(y_true, predictions, zero_division=0)
 
-                    # ============ FEATURE 4: CONFUSION MATRIX ============
+            recall = recall_score(y_true, predictions, zero_division=0)
 
-                    st.markdown("---")
+            f1 = f1_score(y_true, predictions, zero_division=0)
 
-                    st.subheader("Confusion Matrix")
+            mcc = matthews_corrcoef(y_true, predictions)
 
-                    cm = confusion_matrix(y_true, predictions)
+            col1, col2, col3 = st.columns(3)
 
-                    fig = px.imshow(
+            col1.metric("Accuracy", f"{acc:.4f}")
 
-                        cm,
+            col1.metric("AUC", f"{auc:.4f}")
 
-                        text_auto=True,
+            col2.metric("Precision", f"{precision:.4f}")
 
-                        x=['Predicted No', 'Predicted Yes'],
+            col2.metric("Recall", f"{recall:.4f}")
 
-                        y=['Actual No', 'Actual Yes'],
+            col3.metric("F1 Score", f"{f1:.4f}")
 
-                        color_continuous_scale='Blues',
+            col3.metric("MCC Score", f"{mcc:.4f}")
 
-                        title=f"Confusion Matrix - {selected_model}"
+            # Confusion Matrix
 
-                    )
+            st.markdown("---")
 
-                    fig.update_layout(height=400)
+            st.subheader("Confusion Matrix")
 
-                    st.plotly_chart(fig, use_container_width=True)
+            cm = confusion_matrix(y_true, predictions)
 
-                    # Classification Report
+            fig = px.imshow(
 
-                    st.subheader("Classification Report")
+                cm,
 
-                    report = classification_report(
+                text_auto=True,
 
-                        y_true, predictions,
+                x=['Predicted No', 'Predicted Yes'],
 
-                        target_names=['No Subscription', 'Subscription'],
+                y=['Actual No', 'Actual Yes'],
 
-                        output_dict=True
+                color_continuous_scale='Blues',
 
-                    )
+                title=f"Confusion Matrix - {selected_model}"
 
-                    report_df = pd.DataFrame(report).transpose()
+            )
 
-                    st.dataframe(report_df.style.format({
+            st.plotly_chart(fig, use_container_width=True)
 
-                        'precision': '{:.3f}',
+            # Classification Report
 
-                        'recall': '{:.3f}',
+            st.subheader("Classification Report")
 
-                        'f1-score': '{:.3f}',
+            report = classification_report(
 
-                        'support': '{:.0f}'
+                y_true,
 
-                    }), use_container_width=True)
+                predictions,
+
+                target_names=['No Subscription', 'Subscription'],
+
+                output_dict=True
+
+            )
+
+            report_df = pd.DataFrame(report).transpose()
+
+            st.dataframe(report_df, use_container_width=True)
 
 else:
 
-    # Show instructions
-
-    st.info("**Please upload test data CSV file to begin**")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-
-        st.markdown("""
-
-        ###  Instructions
-
-        1. **Upload test data CSV** (bank.csv)
-
-        2. **Select ML model** from dropdown
-
-        3. **Click 'Make Predictions'**
-
-        4. **View results** and download
-
-        ###  Test Data Format
-
-        - Same features as bank-full.csv
-
-        - Include 'y' column for evaluation
-
-        - 100-1000 rows recommended
-
-        """)
-
-    with col2:
-
-        st.markdown("""
-
-        ###  Available Models
-
-         Logistic Regression  
-
-         Decision Tree  
-
-         K-Nearest Neighbors  
-
-         Naive Bayes  
-
-         Random Forest  
-
-         XGBoost  
-
-        ###  Evaluation Metrics
-
-         Accuracy  
-
-         AUC  
-
-         Precision  
-
-         Recall  
-
-         F1 Score  
-
-         MCC Score
-
-        """)
-
-    # Sample test data download
-
-    st.markdown("---")
-
-    st.subheader("📎 Download Sample Test Data")
-
-    sample_data = pd.DataFrame({
-
-        'age': [35, 42, 28, 51, 39],
-
-        'job': ['admin.', 'technician', 'blue-collar', 'management', 'services'],
-
-        'marital': ['married', 'single', 'married', 'divorced', 'married'],
-
-        'education': ['university.degree', 'high.school', 'basic.9y', 'university.degree', 'high.school'],
-
-        'default': ['no', 'no', 'no', 'no', 'no'],
-
-        'balance': [1200, 4500, 800, 3200, 2100],
-
-        'housing': ['yes', 'no', 'yes', 'yes', 'no'],
-
-        'loan': ['no', 'no', 'yes', 'no', 'no'],
-
-        'contact': ['cellular', 'cellular', 'telephone', 'cellular', 'cellular'],
-
-        'day': [15, 22, 8, 12, 19],
-
-        'month': ['may', 'jun', 'jul', 'may', 'jun'],
-
-        'duration': [180, 95, 320, 210, 145],
-
-        'campaign': [1, 2, 1, 3, 1],
-
-        'pdays': [-1, -1, 6, -1, 3],
-
-        'previous': [0, 0, 1, 0, 2],
-
-        'poutcome': ['unknown', 'unknown', 'success', 'unknown', 'failure'],
-
-        'y': [0, 0, 1, 0, 1]
-
-    })
-
-    csv = sample_data.to_csv(index=False)
-
-    st.download_button(
-
-        label="Download sample_test_data.csv",
-
-        data=csv,
-
-        file_name="sample_test_data.csv",
-
-        mime="text/csv"
-
-    )
-
-# ============ FOOTER ============
-
-st.markdown("---")
-
-st.markdown("""
-<div style='text-align: center; color: #6B7280; padding: 1rem;'>
-<p> BITS Pilani - Machine Learning Assignment 2 | 15 February 2026</p>
-<p> 6 Models |  6 Metrics |  Confusion Matrix |  Streamlit Deployment</p>
-</div>
-
-""", unsafe_allow_html=True) 
+    st.info("Please upload test CSV file to begin.")
+ 
