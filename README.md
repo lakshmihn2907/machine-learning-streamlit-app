@@ -96,7 +96,7 @@ Predict whether a client will subscribe to a term deposit based on marketing cam
 
 ##  Deployment
 
-**Live App:** [Your Streamlit URL here]  
+**Live App:** [https://lakshmihn2907-machine-learning-streamlit-app-app-le83o8.streamlit.app/]  
 
 **GitHub:** [https://github.com/lakshmihn2907/bits-ml-assignment-2](https://github.com/lakshmihn2907/bits-ml-assignment-2)
 
