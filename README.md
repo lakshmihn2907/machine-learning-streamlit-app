@@ -79,7 +79,7 @@ Predict whether a client will subscribe to a term deposit based on marketing cam
 
 **Live App:** [https://lakshmihn2907-machine-learning-streamlit-app-app-le83o8.streamlit.app/]  
 
-**GitHub:** [(https://github.com/lakshmihn2907/machine-learning-streamlit-app/)]
+**GitHub:** [https://github.com/lakshmihn2907/machine-learning-streamlit-app/]
 
 ---
 
